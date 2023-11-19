@@ -1,0 +1,3 @@
+tinytuya>=1.2.0
+Pillow>=8.0.0
+#tkinter  # This is usually included with Python's standard library
