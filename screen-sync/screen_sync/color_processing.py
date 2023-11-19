@@ -1,4 +1,5 @@
-from PIL import ImageGrab, ImageStat
+from PIL import ImageGrab, ImageStat, Image, ImageEnhance, ImageColor
+
 
 def get_screen_center(size=(100, 100)):
     """Calculate the coordinates for a central region of the screen."""
@@ -19,14 +20,23 @@ def get_average_color(image):
     avg = stats.mean
     return int(avg[0]), int(avg[1]), int(avg[2])  # RGB values
 
-def adjust_color(r, g, b, brightness_factor=1.0, saturation_factor=1.0):
-    """Adjust the color (placeholder for actual logic)."""
-    # Implement brightness and saturation adjustments if needed
-    return r, g, b
+def adjust_color(r, g, b, saturation_factor=1.5):
+    """Increase the saturation of the given RGB color."""
+    # Convert RGB to a Pillow Image
+    image = Image.new("RGB", (1, 1), (r, g, b))
+
+    # Convert to HSV, increase saturation, and convert back to RGB
+    converter = ImageEnhance.Color(image)
+    image_enhanced = converter.enhance(saturation_factor)
+
+    # Extract the RGB value of the enhanced image
+    enhanced_color = image_enhanced.getpixel((0, 0))
+
+    return enhanced_color
 
 def process_screen_color():
     """Capture the screen color and process it."""
     screenshot = capture_screen_center()
     r, g, b = get_average_color(screenshot)
-    adjusted_r, adjusted_g, adjusted_b = adjust_color(r, g, b)
+    adjusted_r, adjusted_g, adjusted_b = adjust_color(r, g, b, saturation_factor=3.0)
     return adjusted_r, adjusted_g, adjusted_b
