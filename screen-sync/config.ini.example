@@ -17,4 +17,9 @@ device_id = xxx
 local_key = xxx
 ip_address = 192.168.xx.xx
 
+
 # ... Add more bulbs as needed
+
+
+
+
