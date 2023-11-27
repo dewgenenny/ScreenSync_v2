@@ -41,18 +41,9 @@ def adjust_color(r, g, b, saturation_factor=1.5):
     return enhanced_color
 
 def process_screen_color(size=(100, 100)):
-    """Capture the screen color and process it, returning HSV values."""
+    """Capture the screen color and process it, returning RGB values."""
     bbox = get_screen_center(size)
     screenshot = ImageGrab.grab(bbox=bbox)
     r, g, b = get_average_color(screenshot)
     adjusted_r, adjusted_g, adjusted_b = adjust_color(r, g, b, saturation_factor=3)
-
-    # Convert RGB to HSV
-    h, s, v = colorsys.rgb_to_hsv(adjusted_r / 255.0, adjusted_g / 255.0, adjusted_b / 255.0)
-
-    # Scale HSV values to the appropriate range
-    h_scaled = int(h * 360)  # Hue: 0-360
-    s_scaled = int(s * 1000) # Saturation: 0-1000
-    v_scaled = int(v * 1000) # Value: 0-1000
-
-    return h_scaled, s_scaled, v_scaled
+    return adjusted_r, adjusted_g, adjusted_b

@@ -1,5 +1,7 @@
 import tinytuya
 from .abstract_bulb_control import AbstractBulbControl
+from ..rate_limiter import RateLimiter
+import colorsys
 
 def generate_dp27_string(self, hue, saturation, value, mode='gradient'):
     """Generate the DP27 string manually with given hue, saturation, and value."""
@@ -13,11 +15,14 @@ def generate_dp27_string(self, hue, saturation, value, mode='gradient'):
 
 class TuyaBulbControl(AbstractBulbControl):
 
-    def __init__(self, device_id, local_key, ip):
+    def __init__(self, device_id, local_key, ip, rate_limiter):
         self.device_id = device_id
         self.local_key = local_key
         self.ip = ip
         self.bulb = None
+        self.rate_limiter = rate_limiter
+        self.last_color = None
+
 
     def connect(self):
         self.bulb = tinytuya.BulbDevice(self.device_id, self.ip, self.local_key, persist=True)
@@ -28,11 +33,29 @@ class TuyaBulbControl(AbstractBulbControl):
         self.bulb.set_socketPersistent(True)
 
 
-    def set_color(self, h,s,v):
+    def set_color(self, r,g,b):
         """We are using the music-sync DPS (27) to update the bulb. It seems to be more performant."""
-        dp27_string = generate_dp27_string(self,h,s,v)
-        if self.bulb:
-            self.bulb.set_multiple_values( {'21': 'music', '27': dp27_string}, nowait=True)
+
+        """Converts RGB to HSV and sets the color of the Tuya bulb."""
+        # Convert RGB to HSV
+        new_color = (r, g, b)
+        if new_color == self.last_color:
+            return  # No change in color, no need to update
+
+
+        if self.rate_limiter.is_allowed():
+            h, s, v = colorsys.rgb_to_hsv(r / 255.0, g / 255.0, b / 255.0)
+
+            # Scale HSV values to the appropriate range
+            h_scaled = int(h * 360)  # Hue: 0-360
+            s_scaled = int(s * 1000) # Saturation: 0-1000
+            v_scaled = int(v * 1000) # Value: 0-1000
+
+            dp27_string = generate_dp27_string(self,h_scaled,s_scaled,v_scaled)
+            if self.bulb:
+                self.bulb.set_multiple_values( {'21': 'music', '27': dp27_string}, nowait=True)
+            self.last_color = new_color  # Store the new color
+
 
     def turn_off(self):
         if self.bulb:
