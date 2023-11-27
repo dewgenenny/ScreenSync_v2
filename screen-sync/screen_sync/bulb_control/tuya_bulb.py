@@ -29,6 +29,7 @@ class TuyaBulbControl(AbstractBulbControl):
 
 
     def set_color(self, h,s,v):
+        """We are using the music-sync DPS (27) to update the bulb. It seems to be more performant."""
         dp27_string = generate_dp27_string(self,h,s,v)
         if self.bulb:
             self.bulb.set_multiple_values( {'21': 'music', '27': dp27_string}, nowait=True)
