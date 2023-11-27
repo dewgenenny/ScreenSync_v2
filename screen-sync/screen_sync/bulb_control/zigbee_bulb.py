@@ -6,7 +6,7 @@ import screen_sync.rate_limiter
 
 class ZigbeeBulbControl(AbstractBulbControl):
 
-    def __init__(self, mqtt_broker, port, username, password, topic, rate_limiter):
+    def __init__(self, mqtt_broker, port, username, password, topic, rate_limiter, placement):
         self.mqtt_broker = mqtt_broker
         self.port = port
         self.username = username
@@ -14,6 +14,7 @@ class ZigbeeBulbControl(AbstractBulbControl):
         self.topic = topic
         self.rate_limiter = rate_limiter
         self.last_color = None
+        self.placement = placement
 
     def connect(self):
         """Dummy implementation as connection is handled globally for MQTT."""

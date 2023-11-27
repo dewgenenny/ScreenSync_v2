@@ -16,8 +16,9 @@ class BulbFactory:
             bulb_type = bulb_config.get('type')
             frequency = self.config_manager.get_update_frequency(bulb_type)
             rate_limiter = RateLimiter(frequency)  # Instantiate RateLimiter
+            placement = bulb_config.get('placement', 'center')
             if bulb_type == 'Tuya':
-                bulb = TuyaBulbControl(bulb_config['device_id'], bulb_config['local_key'], bulb_config['ip_address'], rate_limiter)
+                bulb = TuyaBulbControl(bulb_config['device_id'], bulb_config['local_key'], bulb_config['ip_address'], rate_limiter, placement)
                 bulbs.append(bulb)
             elif bulb_type == 'MQTT':
                 bulb = ZigbeeBulbControl(
@@ -26,7 +27,8 @@ class BulbFactory:
                     username=mqtt_settings['username'],
                     password=mqtt_settings['password'],
                     topic=bulb_config['topic'],
-                    rate_limiter=rate_limiter
+                    rate_limiter=rate_limiter,
+                    placement=placement
                 )
                 bulb.turn_on()
                 bulb.connect()

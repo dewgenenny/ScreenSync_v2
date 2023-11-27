@@ -35,12 +35,16 @@ class ConfigManager:
                     'type': 'Tuya',
                     'device_id': self.config[section]['device_id'],
                     'local_key': self.config[section]['local_key'],
-                    'ip_address': self.config[section]['ip_address']
+                    'ip_address': self.config[section]['ip_address'],
+                    'placement': self.config[section].get('placement', 'center')  # Default placement is 'Center'
+
                 })
             elif section.startswith('BulbMQTT'):
                 bulbs.append({
                     'type': 'MQTT',
-                    'topic': self.config[section]['topic']
+                    'topic': self.config[section]['topic'],
+                    'placement': self.config[section].get('placement', 'center')  # Default placement is 'Center'
+
                 })
             # Add more elif blocks for other bulb types as needed
         return bulbs
