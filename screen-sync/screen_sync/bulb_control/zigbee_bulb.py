@@ -15,6 +15,8 @@ class ZigbeeBulbControl(AbstractBulbControl):
         self.rate_limiter = rate_limiter
         self.last_color = None
         self.placement = placement
+        self.type = "MQTT"
+        self.device_id = topic
 
     def connect(self):
         """Dummy implementation as connection is handled globally for MQTT."""

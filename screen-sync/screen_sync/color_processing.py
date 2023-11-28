@@ -7,7 +7,13 @@ screen_width, screen_height = None, None
 # Global variables to cache screen size and zone bounding boxes
 screen_size = None
 zone_bboxes = {}
+# Global variable to store the current mode
+current_mode = 'normal'
 
+def set_mode(mode):
+    global current_mode
+    current_mode = mode
+    # Adjust behavior based on mode
 
 
 def get_screen_size():
@@ -43,8 +49,12 @@ def calculate_zone_bbox(zone_height=100):
         'bottom-right': (2 * third_width, 2 * third_height, screen_width, screen_height - zone_height)
     }
 @runtime_stats.timed_function('process_screen_zone')
-def process_screen_zone(zone, saturation_factor=3):
+def process_screen_zone(zone, saturation_factor=1.5):
     """Capture and process a specific screen zone."""
+    if current_mode == 'Shooter':
+        # Override the zone and size to be the center 50x50 pixels
+        size = (50, 50)
+        zone = get_screen_center(size)
     bbox = get_zone_bbox(zone)
     screenshot = ImageGrab.grab(bbox=bbox)
     stats = ImageStat.Stat(screenshot)

@@ -8,6 +8,9 @@ class ConfigManager:
         self.config = configparser.ConfigParser()
         self.load_config()
 
+    def get_config_by_section(self, section):
+        return dict(self.config.items(section))
+
     def load_config(self):
         """Loads the configuration file."""
         self.config = configparser.ConfigParser()  # Create a new ConfigParser instance
@@ -26,6 +29,12 @@ class ConfigManager:
             'saturation_factor': general.getfloat('saturation_factor', 1.5)
         }
 
+    def get_section_by_device_id(self, device_id):
+        for section in self.config.sections():
+            if self.config[section].get('device_id') == device_id:
+                return section
+        return None  # Or raise an error
+
     def get_bulbs(self):
         """Retrieves bulb configurations for different types."""
         bulbs = []
@@ -36,15 +45,16 @@ class ConfigManager:
                     'device_id': self.config[section]['device_id'],
                     'local_key': self.config[section]['local_key'],
                     'ip_address': self.config[section]['ip_address'],
-                    'placement': self.config[section].get('placement', 'center')  # Default placement is 'Center'
-
+                    'placement': self.config[section].get('placement', 'center'),  # Default placement is 'Center'
+                    'config_id' : section
                 })
             elif section.startswith('BulbMQTT'):
                 bulbs.append({
                     'type': 'MQTT',
                     'topic': self.config[section]['topic'],
-                    'placement': self.config[section].get('placement', 'center')  # Default placement is 'Center'
-
+                    'placement': self.config[section].get('placement', 'center'),  # Default placement is 'Center'
+                    'device_id': 'MQTT',
+                    'config_id' : section
                 })
             # Add more elif blocks for other bulb types as needed
         return bulbs

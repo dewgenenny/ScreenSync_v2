@@ -25,6 +25,7 @@ class TuyaBulbControl(AbstractBulbControl):
         self.rate_limiter = rate_limiter
         self.last_color = None
         self.placement = placement
+        self.type = "Tuya"
 
 
     def connect(self):
