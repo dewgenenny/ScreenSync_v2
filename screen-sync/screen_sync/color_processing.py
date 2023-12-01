@@ -1,4 +1,6 @@
-from PIL import ImageGrab, ImageStat, Image, ImageEnhance, ImageColor
+import mss
+import numpy as np
+from PIL import ImageStat, Image, ImageEnhance, ImageColor
 import colorsys
 from screen_sync.stats import runtime_stats
 
@@ -16,13 +18,22 @@ def set_mode(mode):
     # Adjust behavior based on mode
 
 
+# def get_screen_size():
+#     """Returns the current screen size as a tuple (width, height)."""
+#     global screen_size
+#     if screen_size is None:
+#         screen = ImageGrab.grab()
+#         screen_size = screen.size
+#     return screen_size
 def get_screen_size():
     """Returns the current screen size as a tuple (width, height)."""
     global screen_size
     if screen_size is None:
-        screen = ImageGrab.grab()
-        screen_size = screen.size
+        with mss.mss() as sct:
+            monitor = sct.monitors[1]  # Get the first monitor
+            screen_size = (monitor['width'], monitor['height'])
     return screen_size
+
 
 def get_zone_bbox(zone):
     """Get the bounding box for a given screen zone."""
@@ -31,7 +42,7 @@ def get_zone_bbox(zone):
     return zone_bboxes.get(zone, (0, 0, screen_size[0], screen_size[1]))  # Default to full screen
 
 
-def calculate_zone_bbox(zone_height=100):
+def calculate_zone_bbox(zone_height=100, zone_width=100):
     """Calculate the bounding boxes for all screen zones."""
     global zone_bboxes, screen_size
     screen_width, screen_height = get_screen_size()
@@ -41,26 +52,42 @@ def calculate_zone_bbox(zone_height=100):
         'top-left': (0, 0, third_width, zone_height),
         'top-center': (third_width, 0, 2 * third_width, zone_height),
         'top-right': (2 * third_width, 0, screen_width, zone_height),
-        'center-left': (0, third_height, third_width, 2 * third_height),
+        'center-left': (0, third_height, zone_width, 2 * third_height),
         'center': (third_width, third_height, 2 * third_width, 2 * third_height),
-        'center-right': (2 * third_width, third_height, screen_width, 2 * third_height),
-        'bottom-left': (0, 2 * third_height, third_width, screen_height - zone_height),
-        'bottom-center': (third_width, 2 * third_height, 2 * third_width, screen_height - zone_height),
-        'bottom-right': (2 * third_width, 2 * third_height, screen_width, screen_height - zone_height)
+        'center-right': (screen_width - zone_width, third_height, screen_width, 2 * third_height),
+        'bottom-left': (0, screen_height - zone_height, third_width, screen_height),
+        'bottom-center': (third_width, screen_height - zone_height, 2 * third_width, screen_height),
+        'bottom-right': (2 * third_width, screen_height - zone_height, screen_width, screen_height)
     }
-@runtime_stats.timed_function('process_screen_zone')
-def process_screen_zone(zone, saturation_factor=1.5):
+# #@runtime_stats.timed_function('process_screen_zone')
+# def process_screen_zone(zone, saturation_factor=3.0):
+#     """Capture and process a specific screen zone."""
+#
+#     bbox = get_zone_bbox(zone)
+#     screenshot = ImageGrab.grab(bbox=bbox)
+#     stats = ImageStat.Stat(screenshot)
+#     avg_color = int(stats.mean[0]), int(stats.mean[1]), int(stats.mean[2])
+#     adjusted_color = adjust_color(*avg_color, saturation_factor=saturation_factor)
+#     return adjusted_color
+
+def process_screen_zone(zone, saturation_factor=3.0):
     """Capture and process a specific screen zone."""
-    if current_mode == 'Shooter':
-        # Override the zone and size to be the center 50x50 pixels
-        size = (50, 50)
-        zone = get_screen_center(size)
+
     bbox = get_zone_bbox(zone)
-    screenshot = ImageGrab.grab(bbox=bbox)
+    screenshot = capture_screen(bbox)
     stats = ImageStat.Stat(screenshot)
     avg_color = int(stats.mean[0]), int(stats.mean[1]), int(stats.mean[2])
     adjusted_color = adjust_color(*avg_color, saturation_factor=saturation_factor)
     return adjusted_color
+
+
+def capture_screen(bbox):
+    """Capture the screen using python-mss."""
+    with mss.mss() as sct:
+        sct_img = sct.grab(bbox)
+        # Convert to PIL Image for compatibility with existing processing
+        return Image.frombytes("RGB", sct_img.size, sct_img.rgb)
+
 
 def get_screen_center(size=(100, 100)):
     global screen_width, screen_height

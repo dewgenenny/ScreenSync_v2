@@ -24,8 +24,7 @@ root.configure(bg='#404957')
 root.resizable(False, False)
 root.overrideredirect(False)
 
-settings_button_img = PhotoImage(file='./screen_sync/assets/settings-button.png')
-add_new_button_img  = PhotoImage(file='./screen_sync/assets/add-new-button.png')
+
 
 # Global flag to track Shooter Mode state
 shooter_mode_active = False
