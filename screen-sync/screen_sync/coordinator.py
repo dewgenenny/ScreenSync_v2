@@ -24,12 +24,11 @@ class Coordinator:
         if self.running:
             self.start()
 
-    def update_bulb_color(self, bulb):
-        while self.running:
-            with self.lock:
-                color = self.color_cache[bulb.placement]
-                bulb.set_color(*color)
-            time.sleep(0.0001)  # Add a small delay to avoid overloading
+    def update_bulb_color(self, bulb, color):
+        # Update the bulb color in a new thread
+        t = threading.Thread(target=bulb.set_color, args=color)
+        t.start()
+        self.threads.append(t)
 
     def start(self):
         self.running = True
@@ -39,16 +38,27 @@ class Coordinator:
         for thread in self.threads:
             thread.start()
 
+
     def run_update_loop(self):
         while self.running:
+            # Record update for stats
             runtime_stats.record_update()
-            # Update color cache based on current mode
+
             if self.mode == 'shooter':
-                self.color_cache['center'] = self.color_processing.process_screen_zone('center', mode='Shooter')
-            else:
+                # In shooter mode, capture the screen once for the center
+                center_color = self.color_processing.process_screen_zone('center', mode='Shooter')
                 for bulb in self.bulbs:
-                    self.color_cache[bulb.placement] = self.color_processing.process_screen_zone(bulb.placement)
-            time.sleep(0.0001)  # Adjust sampling rate as needed
+                    # Update all bulbs with the center color
+                    self.update_bulb_color(bulb, center_color)
+            else:
+                # In normal mode, update each bulb based on its zone
+                for bulb in self.bulbs:
+                    zone_color = self.color_processing.process_screen_zone(bulb.placement)
+                    self.update_bulb_color(bulb, zone_color)
+
+            # Sleep to avoid overloading
+            time.sleep(0.0001)
+
 
     def stop(self):
         self.running = False

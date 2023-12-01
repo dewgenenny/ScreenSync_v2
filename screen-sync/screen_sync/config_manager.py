@@ -48,6 +48,15 @@ class ConfigManager:
                     'placement': self.config[section].get('placement', 'center'),  # Default placement is 'Center'
                     'config_id' : section
                 })
+            elif section.startswith('BulbMagicHome'):
+                bulbs.append({
+                    'type': 'MagicHome',
+                    'ip_address': self.config[section]['ip_address'],
+                    'device_id': 'MagicHome',
+                    'placement': self.config[section].get('placement', 'center'),  # Default placement is 'Center'
+                    'config_id' : section
+                })
+
             elif section.startswith('BulbMQTT'):
                 bulbs.append({
                     'type': 'MQTT',
@@ -57,6 +66,7 @@ class ConfigManager:
                     'config_id' : section
                 })
             # Add more elif blocks for other bulb types as needed
+        print (bulbs)
         return bulbs
 
     def get_mqtt_settings(self):

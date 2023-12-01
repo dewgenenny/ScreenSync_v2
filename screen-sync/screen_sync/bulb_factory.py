@@ -1,5 +1,6 @@
 from screen_sync.bulb_control.tuya_bulb import TuyaBulbControl
 from screen_sync.bulb_control.zigbee_bulb import ZigbeeBulbControl
+from screen_sync.bulb_control.magichome_bulb import FluxLedBulbControl
 from screen_sync.rate_limiter import RateLimiter
 # Import other bulb control classes as needed
 
@@ -17,7 +18,10 @@ class BulbFactory:
             frequency = self.config_manager.get_update_frequency(bulb_type)
             rate_limiter = RateLimiter(frequency)  # Instantiate RateLimiter
             placement = bulb_config.get('placement', 'center')
-            if bulb_type == 'Tuya':
+            if bulb_config['type'] == 'MagicHome':
+                bulb = FluxLedBulbControl(bulb_config['ip_address'], placement, rate_limiter)
+                bulbs.append(bulb)
+            elif bulb_type == 'Tuya':
                 bulb = TuyaBulbControl(bulb_config['device_id'], bulb_config['local_key'], bulb_config['ip_address'], rate_limiter, placement)
                 bulbs.append(bulb)
             elif bulb_type == 'MQTT':
@@ -38,5 +42,5 @@ class BulbFactory:
 
             if bulb:
                 bulb.connect()
-
+        print (bulbs)
         return bulbs

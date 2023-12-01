@@ -17,14 +17,6 @@ def set_mode(mode):
     current_mode = mode
     # Adjust behavior based on mode
 
-
-# def get_screen_size():
-#     """Returns the current screen size as a tuple (width, height)."""
-#     global screen_size
-#     if screen_size is None:
-#         screen = ImageGrab.grab()
-#         screen_size = screen.size
-#     return screen_size
 def get_screen_size():
     """Returns the current screen size as a tuple (width, height)."""
     global screen_size
@@ -58,27 +50,26 @@ def calculate_zone_bbox(zone_height=100, zone_width=100):
         'bottom-left': (0, screen_height - zone_height, third_width, screen_height),
         'bottom-center': (third_width, screen_height - zone_height, 2 * third_width, screen_height),
         'bottom-right': (2 * third_width, screen_height - zone_height, screen_width, screen_height)
+
     }
-# #@runtime_stats.timed_function('process_screen_zone')
-# def process_screen_zone(zone, saturation_factor=3.0):
-#     """Capture and process a specific screen zone."""
-#
-#     bbox = get_zone_bbox(zone)
-#     screenshot = ImageGrab.grab(bbox=bbox)
-#     stats = ImageStat.Stat(screenshot)
-#     avg_color = int(stats.mean[0]), int(stats.mean[1]), int(stats.mean[2])
-#     adjusted_color = adjust_color(*avg_color, saturation_factor=saturation_factor)
-#     return adjusted_color
 
-def process_screen_zone(zone, saturation_factor=3.0):
+def process_screen_zone(zone, saturation_factor=2.0, mode='normal'):
     """Capture and process a specific screen zone."""
-
-    bbox = get_zone_bbox(zone)
+    # Handle the shooter mode
+    if mode == 'Shooter':
+        # In shooter mode, always capture the center
+        zone = 'center'
+        size = (50, 50)  # You can adjust the size as necessary
+        bbox = get_screen_center(size)
+    else:
+        # For normal mode, use the provided zone
+        bbox = get_zone_bbox(zone)
+    # Capture and process the screen zone
     screenshot = capture_screen(bbox)
-    stats = ImageStat.Stat(screenshot)
-    avg_color = int(stats.mean[0]), int(stats.mean[1]), int(stats.mean[2])
+    avg_color = get_average_color(screenshot)
     adjusted_color = adjust_color(*avg_color, saturation_factor=saturation_factor)
     return adjusted_color
+
 
 
 def capture_screen(bbox):
@@ -92,16 +83,22 @@ def capture_screen(bbox):
 def get_screen_center(size=(100, 100)):
     global screen_width, screen_height
     if not screen_width or not screen_height:
-        screen = ImageGrab.grab()
-        screen_width, screen_height = screen.size
+        with mss.mss() as sct:
+            monitor = sct.monitors[1]  # Get the first monitor
+            screen_width, screen_height = monitor['width'], monitor['height']
     center_x, center_y = screen_width // 2, screen_height // 2
     half_width, half_height = size[0] // 2, size[1] // 2
-    return center_x - half_width, center_y - half_height, center_x + half_width, center_y + half_height
+
+    return (center_x - half_width, center_y - half_height,
+            center_x + half_width, center_y + half_height)
 
 def capture_screen_center():
     """Capture a 100x100 pixel box at the center of the screen."""
     bbox = get_screen_center()
-    return ImageGrab.grab(bbox=bbox)
+
+    # Convert the bbox to a format suitable for mss
+    #mss_bbox = {"top": bbox[1], "left": bbox[0], "width": bbox[2] - bbox[0], "height": bbox[3] - bbox[1]}
+    return capture_screen(bbox)
 
 def get_average_color(image):
     """Calculate the average color of the given image."""

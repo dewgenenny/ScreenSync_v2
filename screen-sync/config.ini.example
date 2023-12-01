@@ -8,6 +8,9 @@ update_frequency=50
 [MQTTSettings]
 update_frequency=0.5
 
+[MagicHomeSettings]
+update_frequency = 50
+
 [MQTT]
 broker=192.168.x.x
 port=1883
@@ -34,6 +37,10 @@ topic=zigbee2mqtt/friendly name/set
 
 [BulbMQTT2]
 topic=zigbee2mqtt/friendly name/set
+
+#[BulbMagicHome1]
+#ip_address = 192.168.xxx.xxx
+#placement = center-left
 
 # ... Add more bulbs as needed
 
