@@ -4,7 +4,7 @@
 Screen Sync is a Python application designed to synchronize the colors of your computer screen with various smart light bulbs, including Tuya WiFi bulbs. It captures the dominant colors from your screen and sets your smart bulbs to match these colors in real-time, enhancing your entertainment and work environment with ambient lighting.
 
 
-![Photo of ScreenSync in action](/screen-sync/screen_sync/assets/IMG_0877.JPG)
+![Photo of ScreenSync in action](/screensync/screen_sync/assets/IMG_0877.JPG)
 
 ## Features
 - Real-time screen color synchronization.
