@@ -136,6 +136,8 @@ class ConfigManager:
             self._add_mqtt_bulb(**kwargs)
         elif bulb_type == 'Tuya':
             self._add_tuya_bulb(**kwargs)
+        elif bulb_type == 'MagicHome':
+            self._add_magichome_bulb(**kwargs)
         # Add more elif blocks for other bulb types as needed
 
     def _add_mqtt_bulb(self, topic, placement):
@@ -158,6 +160,17 @@ class ConfigManager:
         self.config[section_name] = {
             'device_id': device_id,
             'local_key': local_key,
+            'ip_address': ip_address,
+            'placement': placement
+        }
+        self.save_config()
+
+    def _add_magichome_bulb(self,  ip_address, placement):
+        """Adds a new Tuya bulb configuration."""
+        tuya_bulb_count = len([s for s in self.config.sections() if s.startswith('BulbTuya')])
+        section_name = f'BulbTuya{tuya_bulb_count + 1}'
+
+        self.config[section_name] = {
             'ip_address': ip_address,
             'placement': placement
         }
