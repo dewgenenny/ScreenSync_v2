@@ -11,10 +11,48 @@ class ConfigManager:
     def get_config_by_section(self, section):
         return dict(self.config.items(section))
 
+    def create_default_config(self):
+        """Creates a default configuration file."""
+        # Add default sections and settings
+        self.config['General'] = {
+            'screen_capture_size': '100, 100',
+            'saturation_factor': '1.5'
+        }
+        self.config['MQTT'] = {
+            'broker': 'localhost',
+            'port': '1883',
+            'username': '',
+            'password': ''
+        }
+
+        # Add default TuyaSettings
+        self.config['TuyaSettings'] = {
+            'update_frequency': '50'
+        }
+
+        # Add default MQTTSettings
+        self.config['MQTTSettings'] = {
+            'update_frequency': '0.5'
+        }
+
+        # Add default MagicHomeSettings
+        self.config['MagicHomeSettings'] = {
+            'update_frequency': '50'
+        }
+
+        # Add more default sections and settings as necessary
+
+        # Create the config file with default settings
+        with open(self.config_file, 'w') as file:
+            self.config.write(file)
+
+
     def load_config(self):
-        """Loads the configuration file."""
-        self.config = configparser.ConfigParser()  # Create a new ConfigParser instance
-        self.config.read(self.config_file)
+        """Loads the configuration file, creates one if it doesn't exist."""
+        if not os.path.exists(self.config_file):
+            self.create_default_config()
+        else:
+            self.config.read(self.config_file)
 
     def save_config(self):
         """Saves the configuration to the file."""
@@ -66,7 +104,7 @@ class ConfigManager:
                     'config_id' : section
                 })
             # Add more elif blocks for other bulb types as needed
-        print (bulbs)
+
         return bulbs
 
     def get_mqtt_settings(self):
@@ -100,14 +138,19 @@ class ConfigManager:
             self._add_tuya_bulb(**kwargs)
         # Add more elif blocks for other bulb types as needed
 
-    def _add_mqtt_bulb(self, topic):
+    def _add_mqtt_bulb(self, topic, placement):
         """Adds a new MQTT bulb configuration."""
         mqtt_bulb_count = len([s for s in self.config.sections() if s.startswith('BulbMQTT')])
         section_name = f'BulbMQTT{mqtt_bulb_count + 1}'
-        self.config[section_name] = {'topic': topic}
+        self.config[section_name] = {
+
+            'topic': topic,
+            'placement': placement
+
+        }
         self.save_config()
 
-    def _add_tuya_bulb(self, device_id, local_key, ip_address):
+    def _add_tuya_bulb(self, device_id, local_key, ip_address, placement):
         """Adds a new Tuya bulb configuration."""
         tuya_bulb_count = len([s for s in self.config.sections() if s.startswith('BulbTuya')])
         section_name = f'BulbTuya{tuya_bulb_count + 1}'
@@ -115,7 +158,8 @@ class ConfigManager:
         self.config[section_name] = {
             'device_id': device_id,
             'local_key': local_key,
-            'ip_address': ip_address
+            'ip_address': ip_address,
+            'placement': placement
         }
         self.save_config()
 

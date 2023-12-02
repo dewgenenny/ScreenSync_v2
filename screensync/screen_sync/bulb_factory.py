@@ -1,7 +1,7 @@
-from screen_sync.bulb_control.tuya_bulb import TuyaBulbControl
-from screen_sync.bulb_control.zigbee_bulb import ZigbeeBulbControl
-from screen_sync.bulb_control.magichome_bulb import FluxLedBulbControl
-from screen_sync.rate_limiter import RateLimiter
+from screensync.screen_sync.bulb_control.tuya_bulb import TuyaBulbControl
+from screensync.screen_sync.bulb_control.zigbee_bulb import ZigbeeBulbControl
+from screensync.screen_sync.bulb_control.magichome_bulb import FluxLedBulbControl
+from screensync.screen_sync.rate_limiter import RateLimiter
 # Import other bulb control classes as needed
 
 class BulbFactory:
@@ -41,6 +41,7 @@ class BulbFactory:
             # Add more conditions for other bulb types
 
             if bulb:
+
                 bulb.connect()
-        print (bulbs)
+
         return bulbs

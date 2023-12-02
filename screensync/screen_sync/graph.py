@@ -3,7 +3,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from datetime import datetime
 import tkinter as tk
-from screen_sync.stats import runtime_stats
+from screensync.screen_sync.stats import runtime_stats
 
 def create_embedded_graph(runtime_stats, parent_widget):
     # Convert target size to inches (1 inch = 96 pixels)

@@ -1,7 +1,7 @@
 import json
 import paho.mqtt.publish as publish
 from .abstract_bulb_control import AbstractBulbControl
-import screen_sync.rate_limiter
+import screensync.screen_sync.rate_limiter
 
 
 class ZigbeeBulbControl(AbstractBulbControl):

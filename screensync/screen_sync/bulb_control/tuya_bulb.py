@@ -3,7 +3,7 @@ from .abstract_bulb_control import AbstractBulbControl
 from ..rate_limiter import RateLimiter
 import colorsys
 import time
-from screen_sync.stats import runtime_stats
+from screensync.screen_sync.stats import runtime_stats
 
 def generate_dp27_string(self, hue, saturation, value, mode='gradient'):
     """Generate the DP27 string manually with given hue, saturation, and value."""

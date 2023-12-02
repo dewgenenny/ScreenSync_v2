@@ -2,7 +2,7 @@ import mss
 import numpy as np
 from PIL import ImageStat, Image, ImageEnhance, ImageColor
 import colorsys
-from screen_sync.stats import runtime_stats
+from screensync.screen_sync.stats import runtime_stats
 
 # Global variable to cache screen size
 screen_width, screen_height = None, None
