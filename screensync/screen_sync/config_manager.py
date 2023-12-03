@@ -15,7 +15,6 @@ class ConfigManager:
         """Creates a default configuration file."""
         # Add default sections and settings
         self.config['General'] = {
-            'screen_capture_size': '100, 100',
             'saturation_factor': '1.5'
         }
         self.config['MQTT'] = {
@@ -63,7 +62,7 @@ class ConfigManager:
         """Retrieves general settings from the config."""
         general = self.config['General']
         return {
-            'screen_capture_size': tuple(map(int, general.get('screen_capture_size', '100, 100').split(','))),
+           # 'screen_capture_size': tuple(map(int, general.get('screen_capture_size', '100, 100').split(','))),
             'saturation_factor': general.getfloat('saturation_factor', 1.5)
         }
 
@@ -168,7 +167,7 @@ class ConfigManager:
     def _add_magichome_bulb(self,  ip_address, placement):
         """Adds a new Tuya bulb configuration."""
         tuya_bulb_count = len([s for s in self.config.sections() if s.startswith('BulbTuya')])
-        section_name = f'BulbTuya{tuya_bulb_count + 1}'
+        section_name = f'BulbMagicHome{tuya_bulb_count + 1}'
 
         self.config[section_name] = {
             'ip_address': ip_address,
@@ -189,6 +188,11 @@ class ConfigManager:
             self.config.add_section(section)
         self.config[section]['update_frequency'] = str(frequency)
         self.save_config()
+
+    def remove_bulb(self, config_section):
+        if config_section in self.config.sections():
+            self.config.remove_section(config_section)
+            self.save_config()
 
 
 # Example Usage

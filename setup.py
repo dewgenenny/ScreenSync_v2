@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='ScreenSync',  # Replace with your package name
-    version='0.0.1',  # Initial version
-    author='Tom George',  # Replace with your name
-    author_email='tom@penberth.com',  # Replace with your email
-    description='A Python tool for synchronizing screen colors with smart bulbs.',  # Short description
+    name='ScreenSync',
+    version='0.0.2',
+    author='Tom George',
+    author_email='tom@penberth.com',
+    description='A Python tool for synchronizing screen colors with smart bulbs.',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     url='https://github.com/dewgenenny/ScreenSync',

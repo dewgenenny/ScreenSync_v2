@@ -19,24 +19,33 @@ class BulbFactory:
             rate_limiter = RateLimiter(frequency)  # Instantiate RateLimiter
             placement = bulb_config.get('placement', 'center')
             if bulb_config['type'] == 'MagicHome':
-                bulb = FluxLedBulbControl(bulb_config['ip_address'], placement, rate_limiter)
-                bulbs.append(bulb)
+                try:
+                    bulb = FluxLedBulbControl(bulb_config['ip_address'], placement, rate_limiter)
+                    bulbs.append(bulb)
+                except:
+                    print("Error adding " + bulb.type + "  bulb with IP " + bulb_config['ip_address'] )
             elif bulb_type == 'Tuya':
-                bulb = TuyaBulbControl(bulb_config['device_id'], bulb_config['local_key'], bulb_config['ip_address'], rate_limiter, placement)
-                bulbs.append(bulb)
+                try:
+                    bulb = TuyaBulbControl(bulb_config['device_id'], bulb_config['local_key'], bulb_config['ip_address'], rate_limiter, placement)
+                    bulbs.append(bulb)
+                except:
+                    print("Error adding " + bulb.type + "  bulb with IP " + bulb_config['ip_address'] )
             elif bulb_type == 'MQTT':
-                bulb = ZigbeeBulbControl(
-                    mqtt_broker=mqtt_settings['broker'],
-                    port=mqtt_settings['port'],
-                    username=mqtt_settings['username'],
-                    password=mqtt_settings['password'],
-                    topic=bulb_config['topic'],
-                    rate_limiter=rate_limiter,
-                    placement=placement
-                )
-                bulb.turn_on()
-                bulb.connect()
-                bulbs.append(bulb)
+                try:
+                    bulb = ZigbeeBulbControl(
+                        mqtt_broker=mqtt_settings['broker'],
+                        port=mqtt_settings['port'],
+                        username=mqtt_settings['username'],
+                        password=mqtt_settings['password'],
+                        topic=bulb_config['topic'],
+                        rate_limiter=rate_limiter,
+                        placement=placement
+                    )
+                    bulb.turn_on()
+                    bulb.connect()
+                    bulbs.append(bulb)
+                except:
+                    print("Error adding " + bulb.type + "  bulb with MQTT broker " + mqtt_broker )
                 pass
             # Add more conditions for other bulb types
 

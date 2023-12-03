@@ -1,12 +1,12 @@
 import tkinter as tk
-from tkinter import PhotoImage
-from tkinter import Toplevel, Label, Entry, Button, Listbox,LabelFrame, END
-from tkinter import ttk
+from tkinter import PhotoImage, Toplevel, Label, Entry, Button, Listbox,LabelFrame, ttk, messagebox, END
 from PIL import Image, ImageTk
 import PIL
 from platformdirs import *
 import os
 from screensync.screen_sync.ui.add_bulb import create_add_bulb_window
+from screensync.screen_sync.ui.remove_bulb import create_remove_bulb_button
+
 import pkg_resources
 
 appname = 'ScreenSync_v2'
@@ -31,7 +31,7 @@ def main():
 
     # Check if config directory exists and if not create
     os.makedirs(user_data_dir(appname, appauthor), exist_ok=True)
-    print(user_data_dir(appname, appauthor) + '/config.ini')
+    #print(user_data_dir(appname, appauthor) + '/config.ini')
     # Initialize necessary objects
     config_manager = ConfigManager(user_data_dir(appname, appauthor) + '/config.ini')
 
@@ -125,11 +125,11 @@ def on_closing(root, coordinator):
 def reinitialize_bulbs():
     global config_manager
     config_manager = ConfigManager('./config.ini')
-    global bulbs  # If bulbs are defined globally
+    global bulbs
     bulbs = bulb_factory.create_bulbs()  # Recreate bulbs with new settings
     global coordinator
     coordinator = Coordinator(bulbs, color_processing)
-    print(bulbs)
+
 
 
 def shooter_clicked(shooter_button, coordinator):
@@ -164,10 +164,10 @@ def open_general_settings(config_manager):
     saturation_var = tk.StringVar(value=general_settings.get('saturation_factor', '1.5'))
     Entry(general_settings_window, textvariable=saturation_var).grid(row=0, column=1)
 
-    # Screen Capture Size Setting
-    Label(general_settings_window, text="Screen Capture Size:").grid(row=1, column=0, sticky='e')
-    capture_size_var = tk.StringVar(value=general_settings.get('screen_capture_size', '100, 100'))
-    Entry(general_settings_window, textvariable=capture_size_var).grid(row=1, column=1)
+#     # Screen Capture Size Setting
+#     Label(general_settings_window, text="Screen Capture Size:").grid(row=1, column=0, sticky='e')
+#     capture_size_var = tk.StringVar(value=general_settings.get('screen_capture_size', '100, 100'))
+#     Entry(general_settings_window, textvariable=capture_size_var).grid(row=1, column=1)
 
     # Save Button
     save_button = Button(general_settings_window, text="Save",
@@ -175,7 +175,51 @@ def open_general_settings(config_manager):
     save_button.grid(row=2, column=0, columnspan=2)
 
 
+def create_settings_frame(parent, title, settings, entries_dict):
+    frame = tk.LabelFrame(parent, text=title, bg='#404957', fg='white', font=("TkDefaultFont", 12, "bold"))
+    frame.pack(padx=10, pady=10, fill='x')
+
+    for setting, value in settings.items():
+        row = tk.Frame(frame, bg='#404957')
+        row.pack(side='top', fill='x', padx=5, pady=5)
+
+        label = tk.Label(row, text=setting.replace('_', ' ').title() + ":", bg='#404957', fg='white')
+        label.pack(side='left')
+
+        entry = tk.Entry(row, bg='white', fg='black')
+        entry.pack(side='right', expand=True, fill='x')
+        entry.insert(0, value)
+        entries_dict[setting] = entry
+
+    return frame
+
 def open_settings_window(root, coordinator, config_manager , bulb_factory):
+
+
+    # This dictionary will hold the entry widgets for settings
+    settings_entries = {
+        'General': {},
+        'MQTT': {},
+        'TuyaSettings': {},
+        'MQTTSettings': {},
+        'MagicHomeSettings': {}
+    }
+
+    def save_settings():
+        # Iterate over each settings section and update the configuration
+        for section, entries in settings_entries.items():
+            for setting, entry in entries.items():
+                config_manager.config[section][setting] = entry.get()
+
+        # Save the updated configuration to the file
+        config_manager.save_config()
+
+        # Refresh the bulbs and UI if necessary
+        refresh_bulb_list()
+
+        # Provide feedback that settings have been saved
+        messagebox.showinfo("Settings", "Settings have been saved successfully.")
+
 
     def refresh_bulb_list():
         bulbs_listbox.delete(0, tk.END)  # Clear the existing list
@@ -191,88 +235,22 @@ def open_settings_window(root, coordinator, config_manager , bulb_factory):
     settings_window.resizable(False, False)
 
     # General settings frame
-    general_settings_frame = tk.LabelFrame(settings_window, text="General", bg='#404957', fg='white', font=("TkDefaultFont", 12, "bold"))
-    general_settings_frame.pack(padx=10, pady=10, fill='x')
+    general_settings_frame = create_settings_frame(settings_window, "General", config_manager.get_general_settings(), settings_entries['General'])
     # MQTT settings frame
-    mqtt_settings_frame = tk.LabelFrame(settings_window, text="MQTT Server", bg='#404957', fg='white', font=("TkDefaultFont", 12, "bold"))
-    mqtt_settings_frame.pack(padx=10, pady=10, fill='x')
+    mqtt_settings_frame = create_settings_frame(settings_window, "MQTT Server", config_manager.get_mqtt_settings(), settings_entries['MQTT'])
     # Tuya settings frame
-    tuya_settings_frame = tk.LabelFrame(settings_window, text="Tuya Specific", bg='#404957', fg='white', font=("TkDefaultFont", 12, "bold"))
-    tuya_settings_frame.pack(padx=10, pady=10, fill='x')
-    # MQTT settings frame
-    mqtt_specific_settings_frame = tk.LabelFrame(settings_window, text="MQTT Specific", bg='#404957', fg='white', font=("TkDefaultFont", 12, "bold"))
-    mqtt_specific_settings_frame.pack(padx=10, pady=10, fill='x')
+    tuya_settings_frame = create_settings_frame(settings_window, "Tuya Specific", config_manager.get_config_by_section("TuyaSettings"), settings_entries['TuyaSettings'])
+    # MQTT specific settings frame
+    mqtt_specific_settings_frame = create_settings_frame(settings_window, "MQTT Specific", config_manager.get_config_by_section("MQTTSettings"), settings_entries['MQTTSettings'])
     # MagicHome settings frame
-    magichome_specific_settings_frame = tk.LabelFrame(settings_window, text="MagicHome Specific", bg='#404957', fg='white', font=("TkDefaultFont", 12, "bold"))
-    magichome_specific_settings_frame.pack(padx=10, pady=10, fill='x')
+    magichome_specific_settings_frame = create_settings_frame(settings_window, "MagicHome Specific", config_manager.get_config_by_section("MagicHomeSettings"), settings_entries['MagicHomeSettings'])
+
+    # Add "Save Settings" Button
+    save_button = tk.Button(settings_window, text="Save Settings", command=save_settings, bg='green', fg='white')
+    save_button.pack(side='bottom', pady=10)
 
     add_new_frame = tk.LabelFrame(settings_window, text="Add New Bulb", bg='#404957', fg='white', font=("TkDefaultFont", 12, "bold"))
     add_new_frame.pack(padx=10, pady=10, fill='x')
-
-    # Retrieve general settings and create a label and entry for each setting
-    general_settings = config_manager.get_general_settings()
-    for setting, value in general_settings.items():
-        row = tk.Frame(general_settings_frame, bg='#404957')
-        row.pack(side='top', fill='x', padx=5, pady=5)
-
-        label = tk.Label(row, text=setting.replace('_', ' ').title() + ":", bg='#404957', fg='white')
-        label.pack(side='left')
-
-        entry = tk.Entry(row, bg='white', fg='black')
-        entry.pack(side='right', expand=True, fill='x')
-        entry.insert(0, value)
-
-    mqtt_settings = config_manager.get_mqtt_settings()
-
-    for setting, value in mqtt_settings.items():
-        row = tk.Frame(mqtt_settings_frame, bg='#404957')
-        row.pack(side='top', fill='x', padx=5, pady=5)
-
-        label = tk.Label(row, text=setting.replace('_', ' ').title() + ":", bg='#404957', fg='white')
-        label.pack(side='left')
-
-        entry = tk.Entry(row, bg='white', fg='black')
-        entry.pack(side='right', expand=True, fill='x')
-        entry.insert(0, value)
-
-    tuya_settings = config_manager.get_config_by_section("TuyaSettings")
-
-    for setting, value in tuya_settings.items():
-        row = tk.Frame(tuya_settings_frame, bg='#404957')
-        row.pack(side='top', fill='x', padx=5, pady=5)
-
-        label = tk.Label(row, text=setting.replace('_', ' ').title() + ":", bg='#404957', fg='white')
-        label.pack(side='left')
-
-        entry = tk.Entry(row, bg='white', fg='black')
-        entry.pack(side='right', expand=True, fill='x')
-        entry.insert(0, value)
-
-    mqtt_specific_settings = config_manager.get_config_by_section("MQTTSettings")
-
-    for setting, value in mqtt_specific_settings.items():
-        row = tk.Frame(mqtt_specific_settings_frame, bg='#404957')
-        row.pack(side='top', fill='x', padx=5, pady=5)
-
-        label = tk.Label(row, text=setting.replace('_', ' ').title() + ":", bg='#404957', fg='white')
-        label.pack(side='left')
-
-        entry = tk.Entry(row, bg='white', fg='black')
-        entry.pack(side='right', expand=True, fill='x')
-        entry.insert(0, value)
-
-    magichome_specific_settings = config_manager.get_config_by_section("MagicHomeSettings")
-
-    for setting, value in magichome_specific_settings.items():
-        row = tk.Frame(magichome_specific_settings_frame, bg='#404957')
-        row.pack(side='top', fill='x', padx=5, pady=5)
-
-        label = tk.Label(row, text=setting.replace('_', ' ').title() + ":", bg='#404957', fg='white')
-        label.pack(side='left')
-
-        entry = tk.Entry(row, bg='white', fg='black')
-        entry.pack(side='right', expand=True, fill='x')
-        entry.insert(0, value)
 
     # Bulbs listbox with a scrollbar
     bulbs_frame = tk.LabelFrame(settings_window, text="Bulbs", bg='#404957', fg='white', font=("TkDefaultFont", 12, "bold"))
@@ -301,7 +279,7 @@ def open_settings_window(root, coordinator, config_manager , bulb_factory):
 
     def on_bulb_select(event):
         selected_bulb = bulbs_listbox.get(bulbs_listbox.curselection())
-        open_bulb_settings(root, coordinator,config_manager, bulb_factory, selected_bulb.split(' - ')[0])  # Assuming device_id is after '-'
+        open_bulb_settings(root, coordinator,config_manager, bulb_factory,refresh_bulb_list, selected_bulb.split(' - ')[0])  # Assuming device_id is after '-'
 
     bulbs_listbox.bind('<<ListboxSelect>>', on_bulb_select)
 
@@ -323,7 +301,9 @@ def center_window_on_screen(window):
 
 
 
-def open_bulb_settings(root, coordinator, config_manager, bulb_factory, config_section):
+def open_bulb_settings(root, coordinator, config_manager, bulb_factory,refresh_bulb_list, config_section):
+
+
     bulb_window = Toplevel(root)
     bulb_window.title(f"Settings for Bulb: {config_section}")
     bulb_window.configure(bg='#404957')
@@ -357,7 +337,9 @@ def open_bulb_settings(root, coordinator, config_manager, bulb_factory, config_s
     # Save Button
     save_button = Button(bulb_window, text="Save", command=save_bulb_settings)
     save_button.pack(pady=10)
-
+    # Create and place the Remove Button
+    remove_button = create_remove_bulb_button(bulb_window, config_manager, config_section, refresh_bulb_list)
+    remove_button.pack(pady=(0, 10))  # Adjust padding as needed
     # Place focus on the window (optional)
     bulb_window.focus_force()
 

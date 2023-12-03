@@ -5,7 +5,7 @@ from .abstract_bulb_control import AbstractBulbControl
 class FluxLedBulbControl:
 
     def __init__(self, ip_address, placement, rate_limiter):
-        self.bulb = WifiLedBulb(ip_address)
+        self.bulb = WifiLedBulb(ip_address, timeout=1)
         self.rate_limiter = rate_limiter
         self.last_color = None
         self.placement = placement
@@ -28,4 +28,7 @@ class FluxLedBulbControl:
             self.last_color = new_color  # Store the new color
 
     def connect(self):
-        self.bulb.connect()
+        try:
+            self.bulb.connect(retry=1)
+        except:
+            print("Bulb " + self.type + " - " + self.ip + "Unavailable")

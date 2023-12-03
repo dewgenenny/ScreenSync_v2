@@ -29,7 +29,7 @@ class TuyaBulbControl(AbstractBulbControl):
 
 
     def connect(self):
-        self.bulb = tinytuya.BulbDevice(self.device_id, self.ip, self.local_key, persist=True)
+        self.bulb = tinytuya.BulbDevice(self.device_id, self.ip, self.local_key, persist=True, connection_timeout=1, connection_retry_limit=3, connection_retry_delay=1)
         self.bulb.set_version(3.3)
         self.bulb.set_socketRetryLimit(1)
         self.bulb.set_socketTimeout(1)
