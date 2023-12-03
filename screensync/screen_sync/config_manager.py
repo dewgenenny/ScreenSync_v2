@@ -139,13 +139,13 @@ class ConfigManager:
             self._add_magichome_bulb(**kwargs)
         # Add more elif blocks for other bulb types as needed
 
-    def _add_mqtt_bulb(self, topic, placement):
+    def _add_mqtt_bulb(self, mqtt_topic, placement):
         """Adds a new MQTT bulb configuration."""
         mqtt_bulb_count = len([s for s in self.config.sections() if s.startswith('BulbMQTT')])
         section_name = f'BulbMQTT{mqtt_bulb_count + 1}'
         self.config[section_name] = {
 
-            'topic': topic,
+            'topic': mqtt_topic,
             'placement': placement
 
         }

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ScreenSync',
-    version='0.0.2',
+    version='0.0.3',
     author='Tom George',
     author_email='tom@penberth.com',
     description='A Python tool for synchronizing screen colors with smart bulbs.',
