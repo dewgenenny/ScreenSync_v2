@@ -5,3 +5,4 @@ paho-mqtt
 matplotlib
 mss
 platformdirs
+flux_led

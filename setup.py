@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ScreenSync',
-    version='0.0.3',
+    version='0.0.4',
     author='Tom George',
     author_email='tom@penberth.com',
     description='A Python tool for synchronizing screen colors with smart bulbs.',
@@ -20,7 +20,8 @@ setup(
         'paho-mqtt',
         'matplotlib',
         'mss',
-        'platformdirs'
+        'platformdirs',
+        'flux_led'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',  # Change as appropriate
