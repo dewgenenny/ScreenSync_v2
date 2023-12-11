@@ -4,7 +4,7 @@ from .abstract_bulb_control import AbstractBulbControl
 
 class FluxLedBulbControl:
 
-    def __init__(self, ip_address, placement, rate_limiter):
+    def __init__(self, ip_address, color_mode, placement, rate_limiter):
         self.bulb = WifiLedBulb(ip_address, timeout=1)
         self.rate_limiter = rate_limiter
         self.last_color = None
@@ -16,6 +16,7 @@ class FluxLedBulbControl:
     def set_color(self, r, g, b):
 
         new_color = (r, g, b)
+
         if new_color == self.last_color:
             return  # No change in color, no need to update
 
@@ -24,7 +25,19 @@ class FluxLedBulbControl:
 
 
             if self.bulb:
-                self.bulb.setRgb(r, g, b)
+                if self.color_mode == "rgb":
+                    self.bulb.setRgb(r, g, b)
+                elif self.color_mode == "rbg":
+                    self.bulb.setRgb(r, b, g)
+                elif self.color_mode == "grb":
+                    self.bulb.setRgb(g, r, b)
+                elif self.color_mode == "gbr":
+                    self.bulb.setRgb(g, b, r)
+                elif self.color_mode == "brg":
+                    self.bulb.setRgb(b, r, g)
+                elif self.color_mode == "bgr":
+                    self.bulb.setRgb(b, g, r)
+
             self.last_color = new_color  # Store the new color
 
     def connect(self):

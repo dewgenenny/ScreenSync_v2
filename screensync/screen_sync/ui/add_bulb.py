@@ -58,6 +58,9 @@ def create_add_bulb_window(root, config_manager, refresh_callback):
             ttk.Label(config_frame, text="IP Address:").pack()
             entries['ip_address'] = ttk.Entry(config_frame)
             entries['ip_address'].pack()
+            ttk.Label(config_frame, text="Color Mode (Normally rgb):").pack()
+            entries['color_mode'] = ttk.Entry(config_frame)
+            entries['color_mode'].pack()
 
         elif bulb_type == 'MQTT':
             ttk.Label(config_frame, text="MQTT Topic:").pack()
@@ -77,8 +80,8 @@ def create_add_bulb_window(root, config_manager, refresh_callback):
 
         elif bulb_type == 'MagicHome':
             ip_address = entries['ip_address'].get() if 'ip_address' in entries else None
-            config_manager.add_bulb(bulb_type, ip_address=ip_address, placement=placement)
-
+            color_mode = entries['color_mode'].get() if 'color_mode' in entries else None
+            config_manager.add_bulb(bulb_type, color_mode=color_mode, ip_address=ip_address, placement=placement)
         elif bulb_type == 'MQTT':
             mqtt_topic = entries['mqtt_topic'].get() if 'mqtt_topic' in entries else None
             config_manager.add_bulb(bulb_type, mqtt_topic=mqtt_topic, placement=placement)

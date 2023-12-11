@@ -6,6 +6,8 @@ Screen Sync is a Python application designed to synchronize the colors of your c
 [Video of ScreenSync v2 in action
 ](https://youtu.be/yRZ50QbaHPo)
 
+
+
 [![Upload Python Package](https://github.com/dewgenenny/ScreenSync_v2/actions/workflows/python-publish.yml/badge.svg)](https://github.com/dewgenenny/ScreenSync_v2/actions/workflows/python-publish.yml)
 
 ![Photo of ScreenSync in action](/screensync/assets/IMG_0877.JPG)

@@ -7,6 +7,7 @@ class ConfigManager:
         self.config_file = config_file
         self.config = configparser.ConfigParser()
         self.load_config()
+        print ("Reading from config file " + config_file)
 
     def get_config_by_section(self, section):
         return dict(self.config.items(section))
@@ -91,8 +92,10 @@ class ConfigManager:
                     'ip_address': self.config[section]['ip_address'],
                     'device_id': 'MagicHome',
                     'placement': self.config[section].get('placement', 'center'),  # Default placement is 'Center'
+                    'color_mode': self.config[section].get('color_mode', 'rgb'),
                     'config_id' : section
                 })
+                print ("Bulb loaded with " + self.config[section].get('color_mode', 'rgb'))
 
             elif section.startswith('BulbMQTT'):
                 bulbs.append({
@@ -164,15 +167,17 @@ class ConfigManager:
         }
         self.save_config()
 
-    def _add_magichome_bulb(self,  ip_address, placement):
+    def _add_magichome_bulb(self,  ip_address, placement, color_mode):
         """Adds a new Tuya bulb configuration."""
-        tuya_bulb_count = len([s for s in self.config.sections() if s.startswith('BulbTuya')])
-        section_name = f'BulbMagicHome{tuya_bulb_count + 1}'
+        magic_home_bulb_count = len([s for s in self.config.sections() if s.startswith('BulbMagicHome')])
+        section_name = f'BulbMagicHome{magic_home_bulb_count + 1}'
 
         self.config[section_name] = {
             'ip_address': ip_address,
-            'placement': placement
+            'placement': placement,
+            'color_mode': color_mode,
         }
+
         self.save_config()
 
 

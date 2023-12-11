@@ -274,6 +274,7 @@ def open_settings_window(root, coordinator, config_manager , bulb_factory):
     add_new_button.pack()
     # Assuming bulbs are a list of dictionaries each with a 'type' and 'device_id' key
     bulbs = config_manager.get_bulbs()
+
     for bulb in bulbs:
         bulbs_listbox.insert(tk.END, f"{bulb['config_id']} - {bulb['device_id']}")
 

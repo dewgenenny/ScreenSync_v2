@@ -20,7 +20,7 @@ class BulbFactory:
             placement = bulb_config.get('placement', 'center')
             if bulb_config['type'] == 'MagicHome':
                 try:
-                    bulb = FluxLedBulbControl(bulb_config['ip_address'], placement, rate_limiter)
+                    bulb = FluxLedBulbControl(bulb_config['ip_address'], color_mode, placement, rate_limiter)
                     bulbs.append(bulb)
                 except:
                     print("Error adding " + bulb.type + "  bulb with IP " + bulb_config['ip_address'] )
