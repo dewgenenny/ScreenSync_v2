@@ -20,16 +20,18 @@ class BulbFactory:
             placement = bulb_config.get('placement', 'center')
             if bulb_config['type'] == 'MagicHome':
                 try:
-                    bulb = FluxLedBulbControl(bulb_config['ip_address'], color_mode, placement, rate_limiter)
+                    bulb = FluxLedBulbControl(ip_address=bulb_config['ip_address'], color_mode=bulb_config['color_mode'], placement=placement, rate_limiter=rate_limiter)
                     bulbs.append(bulb)
-                except:
-                    print("Error adding " + bulb.type + "  bulb with IP " + bulb_config['ip_address'] )
+                except Exception as error:
+                    print ("An exception occurred:", error)
+                    print("Error adding " + bulb_config.get('type') + " bulb with IP " + bulb_config['ip_address'] )
+
             elif bulb_type == 'Tuya':
                 try:
                     bulb = TuyaBulbControl(bulb_config['device_id'], bulb_config['local_key'], bulb_config['ip_address'], rate_limiter, placement)
                     bulbs.append(bulb)
                 except:
-                    print("Error adding " + bulb.type + "  bulb with IP " + bulb_config['ip_address'] )
+                    print("Error adding " + bulb_config.get('type') + "  bulb with IP " + bulb_config['ip_address'] )
             elif bulb_type == 'MQTT':
                 try:
                     bulb = ZigbeeBulbControl(
@@ -45,7 +47,7 @@ class BulbFactory:
                     bulb.connect()
                     bulbs.append(bulb)
                 except:
-                    print("Error adding " + bulb.type + "  bulb with MQTT broker " + mqtt_broker )
+                    print("Error adding " + bulb_config.get('type') + "  bulb with MQTT broker " + mqtt_broker )
                 pass
             # Add more conditions for other bulb types
 

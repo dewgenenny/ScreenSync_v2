@@ -4,6 +4,8 @@ from .abstract_bulb_control import AbstractBulbControl
 
 class FluxLedBulbControl:
 
+#FluxLedBulbControl(bulb_config['ip_address'], color_mode, placement, rate_limiter)
+
     def __init__(self, ip_address, color_mode, placement, rate_limiter):
         self.bulb = WifiLedBulb(ip_address, timeout=1)
         self.rate_limiter = rate_limiter
@@ -11,6 +13,7 @@ class FluxLedBulbControl:
         self.placement = placement
         self.type = "MagicHome"
         self.ip = ip_address
+        self.color_mode = color_mode
 
 
     def set_color(self, r, g, b):
@@ -22,7 +25,6 @@ class FluxLedBulbControl:
 
 
         if self.rate_limiter.is_allowed():
-
 
             if self.bulb:
                 if self.color_mode == "rgb":

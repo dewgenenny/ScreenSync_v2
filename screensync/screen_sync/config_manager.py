@@ -95,7 +95,6 @@ class ConfigManager:
                     'color_mode': self.config[section].get('color_mode', 'rgb'),
                     'config_id' : section
                 })
-                print ("Bulb loaded with " + self.config[section].get('color_mode', 'rgb'))
 
             elif section.startswith('BulbMQTT'):
                 bulbs.append({
