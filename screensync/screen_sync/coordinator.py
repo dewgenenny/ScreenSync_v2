@@ -1,6 +1,8 @@
 import threading
 import time
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
+
 from screensync.screen_sync.stats import runtime_stats
 
 class Coordinator:
@@ -11,6 +13,9 @@ class Coordinator:
         self.running = False
         self.color_cache = defaultdict(lambda: (0, 0, 0))  # Default color is black
         self.lock = threading.Lock()
+        self.executor = None
+        self.update_thread = None
+        self._create_executor()
 
     def set_mode(self, mode):
         self.mode = mode
@@ -20,23 +25,32 @@ class Coordinator:
         if self.running:
             self.stop()
         self.bulbs = new_bulbs
+        self._reset_executor()
         self.start()
-        if self.running:
-            self.start()
 
     def update_bulb_color(self, bulb, color):
-        # Update the bulb color in a new thread
-        t = threading.Thread(target=bulb.set_color, args=color)
-        t.start()
-        self.threads.append(t)
+        args = color if isinstance(color, (tuple, list)) else (color,)
+
+        if not self.executor:
+            bulb.set_color(*args)
+            return
+
+        try:
+            self.executor.submit(bulb.set_color, *args)
+        except RuntimeError:
+            # Executor has been shut down; fall back to synchronous update
+            bulb.set_color(*args)
 
     def start(self):
+        if self.running:
+            return
+
+        if not self.executor:
+            self._create_executor()
+
         self.running = True
         self.update_thread = threading.Thread(target=self.run_update_loop)
         self.update_thread.start()
-        self.threads = [threading.Thread(target=self.update_bulb_color, args=(bulb,)) for bulb in self.bulbs]
-        for thread in self.threads:
-            thread.start()
 
 
     def run_update_loop(self):
@@ -64,8 +78,22 @@ class Coordinator:
         self.running = False
         if self.update_thread:
             self.update_thread.join()
-        for t in self.threads:
-            t.join()
+            self.update_thread = None
+
+        if self.executor:
+            self.executor.shutdown(wait=True)
+            self.executor = None
+
+    def _create_executor(self):
+        if self.executor is None:
+            max_workers = max(1, len(self.bulbs)) if self.bulbs else 1
+            self.executor = ThreadPoolExecutor(max_workers=max_workers)
+
+    def _reset_executor(self):
+        if self.executor:
+            self.executor.shutdown(wait=True)
+            self.executor = None
+        self._create_executor()
 
 # Usage in your main script
 # coordinator = Coordinator(bulbs, color_processing)
