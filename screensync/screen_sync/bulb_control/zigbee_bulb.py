@@ -24,13 +24,16 @@ class ZigbeeBulbControl(AbstractBulbControl):
 
     def _publish_message(self, message):
         """Publish a message to the MQTT broker."""
-        publish.single(
-            self.topic,
-            payload=json.dumps(message),
-            hostname=self.mqtt_broker,
-            port=self.port,
-            auth={'username': self.username, 'password': self.password}
-        )
+        params = {"topic":self.topic,
+		          "payload":json.dumps(message),
+				  "hostname":self.mqtt_broker,
+				  "port":self.port}
+        if self.username:
+            auth = {"username":self.username,
+			        "password":self.password}
+            params['auth'] = auth
+				  
+        publish.single(**params)
 
     def set_color(self, r, g, b):
         """Sets the color of the bulb."""

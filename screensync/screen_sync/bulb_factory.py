@@ -47,7 +47,7 @@ class BulbFactory:
                     bulb.connect()
                     bulbs.append(bulb)
                 except:
-                    print("Error adding " + bulb_config.get('type') + "  bulb with MQTT broker " + mqtt_broker )
+                    print("Error adding " + bulb_config.get('type') + "  bulb with MQTT broker " + mqtt_settings['broker'] )
                 pass
             # Add more conditions for other bulb types
 
